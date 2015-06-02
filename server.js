@@ -36,7 +36,8 @@ Meteor.startup(function(){
     parentUrl = process.env.PARENT_URL;
     ddpParentConnection = DDP.connect(parentUrl);
 
-    runServerTests = Meteor.bindEnvironment(function() {
+    var debounce = 1000; // one second should be enough; mocha often sends changed() right after added().
+    runServerTests = _.debounce(Meteor.bindEnvironment(function() {
       console.log("Running mocha server tests");
       mocha.run(Meteor.bindEnvironment(function(err){
         if (err){
@@ -44,7 +45,7 @@ Meteor.startup(function(){
         }
         markTestsComplete();
       }));
-    });
+    }), debounce);
   } else {
     mirrorPort = process.env.MOCHA_MIRROR_PORT;
     opt = {
